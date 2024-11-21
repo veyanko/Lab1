@@ -1,0 +1,100 @@
+using System;
+
+class MaterialRecord
+{
+    public string Sklad { get; private set; }
+    public double Oc { get; private set; }  // Залишок на початок періоду
+    public double P { get; private set; }   // Отримано
+    public double V { get; private set; }   // Видано
+    public double R { get; private set; }   // Залишок на кінець періоду (R = Oc + P - V)
+
+    public MaterialRecord(string sklad, double oc, double p, double v)
+    {
+        Sklad = sklad;
+        Oc = oc;
+        P = p;
+        V = v;
+        CalculateR();
+    }
+
+    private void CalculateR()
+    {
+        R = Oc + P - V;
+    }
+
+    public void PrintRecord()
+    {
+        Console.WriteLine("| {0,-10} | {1,30:F2} | {2,10:F2} | {3,10:F2} | {4,25:F2} |", Sklad, Oc, P, V, R);
+    }
+}
+
+class MaterialMovement
+{
+    static void Main()
+    {
+        int n = 0;
+        while (true)
+        {
+            Console.Write("Введіть кількість складів: ");
+            if (int.TryParse(Console.ReadLine(), out n) && n > 0)
+            {
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Помилка: введіть ціле число більше нуля.");
+            }
+        }
+
+        MaterialRecord[] records = new MaterialRecord[n];
+
+        for (int i = 0; i < n; i++)
+        {
+            Console.Write("Введіть назву складу: ");
+            string sklad = Console.ReadLine();
+
+            double oc = GetDoubleInput("Введіть залишок матеріалів на початок періоду: ");
+            double p = GetDoubleInput("Введіть, скільки матеріалів отримано за період: ");
+            double v = GetDoubleInput("Введіть, скільки матеріалів видано за період: ");
+
+            records[i] = new MaterialRecord(sklad, oc, p, v);
+        }
+
+        
+        Console.WriteLine("| {0,-10} | {1,30} | {2,10} | {3,10} | {4,20} |", "Склад", "Залишок на початок періоду", "Отримано", "Видано", "Залишок на кінець періоду");
+        Console.WriteLine("----------------------------------------------------------------------------------------------------");
+
+        double totalOc = 0, totalP = 0, totalV = 0, totalR = 0;
+        foreach (var record in records)
+        {
+            record.PrintRecord();
+            totalOc += record.Oc;
+            totalP += record.P;
+            totalV += record.V;
+            totalR += record.R;
+        }
+
+        Console.WriteLine("----------------------------------------------------------------------------------------------------");
+        Console.WriteLine("| {0,-10} | {1,30:F2} | {2,10:F2} | {3,10:F2} | {4,25:F2} |", "Разом", totalOc, totalP, totalV, totalR);
+    }
+
+    
+    private static double GetDoubleInput(string prompt)
+    {
+        double value;
+        while (true)
+        {
+            Console.Write(prompt);
+            if (double.TryParse(Console.ReadLine(), out value) && value >= 0)
+            {
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Помилка: введіть коректне число, яке більше або дорівнює нулю.");
+            }
+        }
+        return value;
+    }
+}
+
